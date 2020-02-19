@@ -302,7 +302,7 @@ class GodotExporter:
         pass
 
 
-def save(operator, context, filepath="", **kwargs):
+def save(operator, context, filepath, **kwargs):
     """Begin the export"""
     exporter_log_handler = ExporterLogHandler(operator)
     logging.getLogger().addHandler(exporter_log_handler)

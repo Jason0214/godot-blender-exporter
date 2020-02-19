@@ -42,6 +42,8 @@ bl_info = {  # pylint: disable=invalid-name
 
 class ExportGodot(bpy.types.Operator, ExportHelper):
     """Selection to Godot"""
+    # XXX: Change bl_idname to make accessing addon nicer. Addon is called
+    # through bpy.ops.<bl_idname>.
     bl_idname = "export_godot.escn"
     bl_label = "Export to Godot"
     bl_options = {"PRESET"}
@@ -233,44 +235,3 @@ def unregister():
     """Remove addon from blender"""
     bpy.utils.unregister_class(ExportGodot)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func)
-
-
-def export(filename, overrides=None):
-    """A function to allow build systems to invoke this script more easily
-    with a call to io_scene_godot.export(filename).
-    The overrides property allows the config of the exporter to be controlled
-    keys should be the various properties defined in the ExportGodot class.
-    Eg:
-    io_scene_godot.export(
-        filename,
-        {
-            'material_search_path':'EXPORT_DIR',
-            'use_mesh_modifiers':True,
-        }
-    )
-
-    Anything not overridden will use the default properties
-    """
-
-    default_settings = dict()
-    for attr_name in ExportGodot.__annotations__:
-        attr = ExportGodot.__annotations__[attr_name]
-        # This introspection is not very robust and may break in future blende
-        # versions. This is becase for some reason you can't compare against
-        # bpy.types.Property because. well, they end up not being subclasses
-        # of that!!!
-        if issubclass(type(attr), tuple):
-            default_settings[attr_name] = attr[1]['default']
-    if overrides is not None:
-        default_settings.update(overrides)
-
-    class FakeOp:
-        """Fake blender operator"""
-        def __init__(self):
-            self.report = print
-
-    export_godot.save(FakeOp(), bpy.context, filename, **default_settings)
-
-
-if __name__ == "__main__":
-    register()

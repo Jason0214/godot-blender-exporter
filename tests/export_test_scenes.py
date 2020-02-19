@@ -1,21 +1,37 @@
-import bpy
 import os
 import sys
 import traceback
 import json
+import shutil
+import bpy
+from addon_utils import enable
 
 sys.path = [os.getcwd()] + sys.path  # Ensure exporter from this folder
 
 TEST_SCENE_DIR = os.path.join(os.getcwd(), "tests/test_scenes")
 EXPORTED_DIR = os.path.join(os.getcwd(), "tests/godot_project/exports")
+ADDON_PATH = os.path.join(os.getcwd(), "io_scene_godot")
+
 
 def export_escn(out_file, config):
-    """Fake the export operator call"""
-    import io_scene_godot
-    io_scene_godot.export(out_file, config)
+    """Access io_scene_godot addon and export scene"""
+    default_setting = dict()
+    bpy.ops.export_godot.escn(filepath=out_file, **default_setting)
+
+
+def install_escn_exporter():
+    """Install addon into Blender, overwrite if it is already existed."""
+    bpy_addon_dir = bpy.utils.user_resource('SCRIPTS', "addons")
+    escn_exporter_path = os.path.join(bpy_addon_dir, "io_scene_godot")
+    if os.path.exists(escn_exporter_path):
+        shutil.rmtree(escn_exporter_path)
+    shutil.copytree(ADDON_PATH, escn_exporter_path)
+    enable("io_scene_godot")
 
 
 def main():
+    install_escn_exporter()
+
     dir_queue = list()
     dir_queue.append('.')
     while dir_queue:
@@ -49,7 +65,7 @@ def main():
                     EXPORTED_DIR,
                     dir_relpath,
                     item.replace('.blend', '.escn')
-                    )
+                )
                 export_escn(out_path, config)
                 print("Exported to {}".format(os.path.abspath(out_path)))
 
