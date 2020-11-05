@@ -1,5 +1,6 @@
 """Util functions and structs shared by multiple resource converters"""
 
+import logging
 import bpy
 import bmesh
 
@@ -158,7 +159,11 @@ class MeshConverter:
                     try:
                         mesh.calc_tangents()
                     except RuntimeError:
-                        # Mesh had n-gons; need to triangulate
+                        # Mesh must have n-gons
+                        logging.info(
+                            "Triangulating mesh for tangents; "
+                            "n-gons may look wrong..."
+                        )
                         triangulate_ngons(mesh)
                         mesh.calc_tangents()
                 else:
