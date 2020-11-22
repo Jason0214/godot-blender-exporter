@@ -32,10 +32,9 @@ update-examples:
 		cp "$$f" "tests/reference_exports/$$(echo $$f | cut -d/ -f4-)"; \
 	done;
 
-compare: export-blends
-	diff -x "*.escn.import" -r tests/godot_project/exports/ tests/reference_exports/
-
+compare: export-blends:
+	diff -x "*.escn.import" -rq tests/godot_project/exports/ tests/reference_exports/
 
 style-test: pep8 pylint
 
-all: style-test compare
+all: compare style-test

@@ -27,3 +27,9 @@ install:
 
 script:
     - make ${MAKE_OPTION} BLENDER=$BLENDER_BIN PYLINT='python3 -m pylint'
+
+after_failure:
+    - make update-examples
+    - git format-patch --output=tests_scenes_diff.patch 
+    - echo  ">>>>> Upload scene diff patch to chunk.io"
+    - cat tests_scenes_diff.patch | curl -sT - chunk.io
